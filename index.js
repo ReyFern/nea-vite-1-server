@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 
-app.get('/', (req, res) => {
-    res.send('Hello from our server!');
+app.get('/api', (req, res) => {
+    res.json({users: ["userOne", "userTwo", "userThree"]});
 });
 
 app.listen(5000, () => {
