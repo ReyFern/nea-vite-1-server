@@ -1,9 +1,27 @@
-const express = require('express');
+import mysql from "mysql2";
+
+import express from "express";
+import cors from "cors";
+
 const app = express();
-const cors = require("cors");
 const corsOptions = {
     origin: ["http://localhost:5173"]
 };
+
+const pool = mysql.createPool({
+    host: "127.0.0.1",
+    user: "root",
+    password: "Davian/75",
+    database: "nea_test"
+}).promise();
+
+async function getUsers() {
+    const [rows] = await pool.query("SELECT * FROM user_details");
+    return rows;
+}
+
+const users = await getUsers();
+console.log(users);
 
 app.use(cors(corsOptions));
 
