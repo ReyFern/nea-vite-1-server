@@ -2,6 +2,9 @@ import mysql from "mysql2";
 
 import express from "express";
 import cors from "cors";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const corsOptions = {
@@ -9,10 +12,10 @@ const corsOptions = {
 };
 
 const pool = mysql.createPool({
-    host: "127.0.0.1",
-    user: "root",
-    password: "Davian/75",
-    database: "nea_test"
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE
 }).promise();
 
 async function getUsers() {
