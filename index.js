@@ -1,8 +1,8 @@
 import mysql from "mysql2";
-
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
+import fs from "fs";
 
 dotenv.config();
 
@@ -24,12 +24,29 @@ async function getUsers() {
 }
 
 const users = await getUsers();
-console.log(users);
+const data = JSON.stringify(users[0]);
+fs.writeFile("./json/user_info.json", data, (error) => {
+    if (error) {
+      console.error(error);
+      throw error;
+    }
+});
 
 app.use(cors(corsOptions));
 
+fs.readFile("./json/user_info.json", (error, data) => {
+    // if the reading process failed,
+    // throwing the error
+    if (error) {
+      // logging the error
+      console.error(error);
+  
+      throw err;
+    }
+    const users = JSON.parse(data);
+});
 app.get('/api', (req, res) => {
-    res.json({"users": ["userOne", "userTwo", "userThree"]});
+    res.json(users[0]);
 });
 
 app.listen(5000, () => {
