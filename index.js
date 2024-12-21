@@ -25,6 +25,11 @@ async function getUsers() {
     return rows;
 }
 
+// Adds user to the user_details table
+function addUser() {
+    pool.query("INSERT INTO user_details (username, hashed_password, email) VALUES ('Prancer', 'ejfal;jfailfj;eanil;ema;wifl', 'user@anothercompany.com')");
+}
+
 // Get all users and write to user_info.json
 const users = await getUsers();
 const data = JSON.stringify(users[0]);
@@ -34,6 +39,8 @@ fs.writeFile("./json/user_info.json", data, (error) => {
       throw error;
     }
 });
+
+addUser();
 
 app.use(cors(corsOptions));
 
