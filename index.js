@@ -4,13 +4,14 @@ import cors from "cors";
 import dotenv from 'dotenv';
 import fs from "fs";
 
-dotenv.config();
+dotenv.config(); // Configure dotenv and environment variables
 
 const app = express();
 const corsOptions = {
     origin: ["http://localhost:5173"]
 };
 
+// Create connection pool to MySQL server
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
@@ -18,11 +19,13 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise();
 
+// Gets all users from user_details table
 async function getUsers() {
     const [rows] = await pool.query("SELECT * FROM user_details");
     return rows;
 }
 
+// Get all users and write to user_info.json
 const users = await getUsers();
 const data = JSON.stringify(users[0]);
 fs.writeFile("./json/user_info.json", data, (error) => {
@@ -34,6 +37,7 @@ fs.writeFile("./json/user_info.json", data, (error) => {
 
 app.use(cors(corsOptions));
 
+// Read from user_info.json and assign data to variable
 fs.readFile("./json/user_info.json", (error, data) => {
     // if the reading process failed,
     // throwing the error
@@ -45,10 +49,12 @@ fs.readFile("./json/user_info.json", (error, data) => {
     }
     const users = JSON.parse(data);
 });
+// Host user data on /api route
 app.get('/api', (req, res) => {
     res.json(users[0]);
 });
 
+// Server listening on port 5000
 app.listen(5000, () => {
     console.log('server listening on port 5000');
 });
