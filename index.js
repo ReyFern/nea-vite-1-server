@@ -31,8 +31,8 @@ async function getUsers() {
 }
 
 // Adds user to the user_details table
-function addUser() {
-    pool.query("INSERT INTO user_details (username, hashed_password, email) VALUES ('Prancer', 'ejfal;jfailfj;eanil;ema;wifl', 'user@anothercompany.com')");
+function addUser(username, hashed_password, email) {
+    pool.query(`INSERT INTO user_details (username, hashed_password, email) VALUES ('${username}', '${hashed_password}', '${email}')`);
 }
 
 async function sha256(message) {
@@ -85,8 +85,10 @@ app.get('/api', (req, res) => {
 app.post('/register-request', (req, res) => {
     console.log(req.body);
     const hashed_password = sha256(req.body.password);
+
+    var password = "";
     hashed_password.then((result) => {
-        console.log(result);
+        addUser(req.body.username, result, req.body.email);
     });
     res.send("Successfully posted");
 });
