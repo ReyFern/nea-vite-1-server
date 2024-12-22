@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
 import fs from "fs";
+import bodyParser from 'body-parser';
 
 dotenv.config(); // Configure dotenv and environment variables
 
@@ -10,6 +11,9 @@ const app = express();
 const corsOptions = {
     origin: ["http://localhost:5173"]
 };
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 // Create connection pool to MySQL server
 const pool = mysql.createPool({
@@ -40,7 +44,7 @@ fs.writeFile("./json/user_info.json", data, (error) => {
     }
 });
 
-addUser();
+//addUser();
 
 app.use(cors(corsOptions));
 
@@ -59,6 +63,11 @@ fs.readFile("./json/user_info.json", (error, data) => {
 // Host user data on /api route
 app.get('/api', (req, res) => {
     res.json(users[0]);
+});
+
+app.post('/register-request', (req, res) => {
+    console.log(req.body);
+    res.send("Successfully posted");
 });
 
 // Server listening on port 5000
