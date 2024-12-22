@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from 'dotenv';
 import fs from "fs";
 import bodyParser from 'body-parser';
+import crypto from 'crypto';
 
 dotenv.config(); // Configure dotenv and environment variables
 
@@ -32,6 +33,22 @@ async function getUsers() {
 // Adds user to the user_details table
 function addUser() {
     pool.query("INSERT INTO user_details (username, hashed_password, email) VALUES ('Prancer', 'ejfal;jfailfj;eanil;ema;wifl', 'user@anothercompany.com')");
+}
+
+async function sha256(message) {
+    // encode as UTF-8
+    const msgBuffer = new TextEncoder().encode(message);                    
+
+    // hash the message
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+    // convert ArrayBuffer to Array
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+    // convert bytes to hex string                  
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
 }
 
 // Get all users and write to user_info.json
@@ -67,6 +84,10 @@ app.get('/api', (req, res) => {
 
 app.post('/register-request', (req, res) => {
     console.log(req.body);
+    const hashed_password = sha256(req.body.password);
+    hashed_password.then((result) => {
+        console.log(result);
+    });
     res.send("Successfully posted");
 });
 
