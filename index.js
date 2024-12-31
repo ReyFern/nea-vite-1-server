@@ -35,9 +35,38 @@ function addUser(username, hashed_password, email) {
     pool.query(`INSERT INTO user_details (username, hashed_password, email) VALUES ('${username}', '${hashed_password}', '${email}')`);
 }
 
+// Gets user from the user_details table
+async function getUser(username, hashed_password) {
+    const [rows] = await pool.query(`SELECT * FROM user_details WHERE username='${username}' AND hashed_password='${hashed_password}'`);
+    return rows;
+}
+
+function writeUser(userData) {
+    fs.writeFile("./json/user_info.json", userData, (error) => {
+        if (error) {
+          console.error(error);
+          throw error;
+        }
+    });
+}
+
+function readUser() {
+    fs.readFile("./json/user_info.json", (error, data) => {
+        // if the reading process failed,
+        // throwing the error
+        if (error) {
+          // logging the error
+          console.error(error);
+      
+          throw err;
+        }
+        return JSON.parse(data);
+    });
+}
+
 async function sha256(message) {
     // encode as UTF-8
-    const msgBuffer = new TextEncoder().encode(message);                    
+    const msgBuffer = new TextEncoder().encode(message);
 
     // hash the message
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -52,6 +81,7 @@ async function sha256(message) {
 }
 
 // Get all users and write to user_info.json
+/*
 const users = await getUsers();
 const data = JSON.stringify(users[0]);
 fs.writeFile("./json/user_info.json", data, (error) => {
@@ -60,12 +90,12 @@ fs.writeFile("./json/user_info.json", data, (error) => {
       throw error;
     }
 });
-
-//addUser();
+*/
 
 app.use(cors(corsOptions));
 
 // Read from user_info.json and assign data to variable
+/*
 fs.readFile("./json/user_info.json", (error, data) => {
     // if the reading process failed,
     // throwing the error
@@ -77,20 +107,36 @@ fs.readFile("./json/user_info.json", (error, data) => {
     }
     const users = JSON.parse(data);
 });
-// Host user data on /api route
-app.get('/api', (req, res) => {
-    res.json(users[0]);
+*/
+
+app.get('/auth', (req, res) => {
+    res.json({auth:'success'});
+    res.redirect('http://localhost:5173/Profile');
 });
 
 app.post('/register-request', (req, res) => {
-    console.log(req.body);
-    const hashed_password = sha256(req.body.password);
+    console.log(req.body); // For testing purposes
+    const hashed_password = sha256(req.body.password); // Hash password using SHA256
 
-    var password = "";
     hashed_password.then((result) => {
-        addUser(req.body.username, result, req.body.email);
+        addUser(req.body.username, result, req.body.email); // Runs INSERT statement to database
     });
-    res.send("Successfully posted");
+    res.send("Successfully posted"); // Confirms POST request
+});
+
+app.post('/signin-request', (req, res) => {
+    console.log(req.body.username); // For testing purposes
+    const hashed_password = sha256(req.body.password); // Hash password using SHA256
+
+    hashed_password.then((result) => {
+        const users = getUser(req.body.username, result); // Runs SELECT statement in database
+        users.then((userData) => {
+            const data = JSON.stringify(userData[0]);
+            writeUser(data);
+        });
+    });
+
+    res.redirect("http://localhost:5000/auth"); // Redirects back to profile page
 });
 
 // Server listening on port 5000
