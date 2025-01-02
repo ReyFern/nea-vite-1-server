@@ -109,11 +109,6 @@ fs.readFile("./json/user_info.json", (error, data) => {
 });
 */
 
-app.get('/auth', (req, res) => {
-    res.json({auth:'success'});
-    res.redirect('http://localhost:5173/Profile');
-});
-
 app.post('/register-request', (req, res) => {
     console.log(req.body); // For testing purposes
     const hashed_password = sha256(req.body.password); // Hash password using SHA256
@@ -124,19 +119,17 @@ app.post('/register-request', (req, res) => {
     res.send("Successfully posted"); // Confirms POST request
 });
 
-app.post('/signin-request', (req, res) => {
-    console.log(req.body.username); // For testing purposes
-    const hashed_password = sha256(req.body.password); // Hash password using SHA256
+app.get('/signin-request', (req, res) => {
+    console.log(req.query.username); // For testing purposes
+    const hashed_password = sha256(req.query.password); // Hash password using SHA256
 
     hashed_password.then((result) => {
-        const users = getUser(req.body.username, result); // Runs SELECT statement in database
+        const users = getUser(req.query.username, result); // Runs SELECT statement in database
         users.then((userData) => {
             const data = JSON.stringify(userData[0]);
-            writeUser(data);
+            res.json({auth:"authorised"});
         });
     });
-
-    res.redirect("http://localhost:5000/auth"); // Redirects back to profile page
 });
 
 // Server listening on port 5000
